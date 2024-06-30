@@ -1,0 +1,26 @@
+{
+  "name": "dev-phanuel/api-simple-menu",
+  "description": "A simple RESTful API",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "DevPhanuel\\ApiSimpleMenu\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Omamowho Phanuel",
+      "email": "omamowhophanuel@gmail.com"
+    }
+  ],
+  "config": {
+    "platform": {
+      "php": "8.1.0"
+    }
+  },
+  "require": {
+    "php": ">=8.1.0",
+    "firebase/php-jwt": "^6.10",
+    "respect/validation": "^2.3"
+  }
+}
