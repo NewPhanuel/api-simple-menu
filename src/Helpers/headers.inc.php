@@ -2,5 +2,7 @@
 
 namespace DevPhanuel\ApiSimpleMenu;
 
+use PH7\PhpHttpResponseHeader\Http;
+
 (new AllowCors)->init();
-header('Content-Type: application/json');
+Http::setContentType('application/json');

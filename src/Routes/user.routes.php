@@ -4,6 +4,8 @@ namespace DevPhanuel\ApiSimpleMenu\Routes;
 
 use DevPhanuel\ApiSimpleMenu\Api\User;
 use DevPhanuel\ApiSimpleMenu\Exception\InvalidSchemaException;
+use PH7\JustHttp\StatusCode;
+use PH7\PhpHttpResponseHeader\Http;
 
 enum UserAction: string
 {
@@ -47,6 +49,7 @@ try {
     echo $userAction->getResponse();
 } catch (InvalidSchemaException $e) {
     // TODO Send 400 status code with header()
+    Http::setHeadersByCode(StatusCode::BAD_REQUEST);
     echo json_encode([
         'status' => 'error',
         'err_type' => 'schema error',
