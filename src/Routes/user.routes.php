@@ -3,7 +3,7 @@
 namespace DevPhanuel\ApiSimpleMenu\Routes;
 
 use DevPhanuel\ApiSimpleMenu\Api\User;
-use DevPhanuel\ApiSimpleMenu\Exception\InvalidSchemaException;
+use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
 use PH7\JustHttp\StatusCode;
 use PH7\PhpHttpResponseHeader\Http;
 
@@ -19,15 +19,14 @@ enum UserAction: string
     {
         $postBody = file_get_contents('php://input');
         $postBody = json_decode($postBody);
-        $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+        $userId = $_GET['userId'] ?? 0;
 
-        // TODO Remove the hard coded values from here
-        $user = new User('Omamowho Phanuel', 'omamowhop@gmail.com', '0810 829 5665');
+        $user = new User();
 
         $response = match ($this) {
             self::CREATE => $user->create($postBody),
             self::GET => $user->get($userId),
-            self::UPDATE => $user->update($userId),
+            self::UPDATE => $user->update($postBody),
             self::REMOVE => $user->remove($userId),
             self::GET_ALL => $user->getAll(),
             default => "404"
@@ -47,8 +46,7 @@ match ($action) {
 
 try {
     echo $userAction->getResponse();
-} catch (InvalidSchemaException $e) {
-    // TODO Send 400 status code with header()
+} catch (InvalidValidationException $e) {
     Http::setHeadersByCode(StatusCode::BAD_REQUEST);
     echo json_encode([
         'status' => 'error',

@@ -13,3 +13,10 @@ function basePath(string $path): string
 {
     return __DIR__ . '/' . $path;
 }
+
+function inspectAndDie(mixed $data): void
+{
+    echo "<pre>";
+    var_export($data);
+    echo "</pre>";
+}

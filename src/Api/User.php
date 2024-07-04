@@ -3,54 +3,45 @@ declare(strict_types=1);
 
 namespace DevPhanuel\ApiSimpleMenu\Api;
 
-use DevPhanuel\ApiSimpleMenu\Exception\InvalidSchemaException;
-use Respect\Validation\Validator as validate;
+use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
+use DevPhanuel\ApiSimpleMenu\Validation\SchemaValidation;
 
 class User
 {
-    public readonly int $userId;
+    public readonly ?string $userId;
+    private SchemaValidation $schemaValidation;
 
-    public function __construct(
-        public readonly string $name,
-        public readonly string $email,
-        public readonly string $phone
-    )
-    {
+    public function __construct() {
+        $this->schemaValidation = new SchemaValidation();
     }
 
     /**
      * Create a user
      *
-     * @param mixed $data
+     * @param object $data
      * @return object
      */
     public function create(object $data): object
     {
-        $minLength = 2;
-        $maxLength = 20;
-
-        $schemaValidator = validate::attribute('firstName', validate::stringType()->length($minLength, $maxLength))
-            ->attribute('middleName', validate::stringType()->length($minLength, $maxLength))
-            ->attribute('lastName', validate::stringType()->length($minLength, $maxLength))
-            ->attribute('email', validate::email(), mandatory: false)
-            ->attribute('phone', validate::phone(), mandatory: false);
-
-        if ($schemaValidator->validate($data)) {
+        if ($this->schemaValidation->validateUserSchema($data)) {
             return $data;
         }
-        throw new InvalidSchemaException("Schema does not follow validation rules");
+        throw new InvalidValidationException("Schema does not follow validation rules");
     }
 
     /**
      * Retrieves a user from the database
      *
-     * @param int $userId
+     * @param string $userId
      * @return self
      */
-    public function get(int $userId): self
+    public function get(string $userId): self
     {
-        $this->userId = $userId;
-        return $this;
+        if ($this->schemaValidation->validateUserId($userId)) {
+            $this->userId = $userId;
+            return $this;
+        }
+        throw new InvalidValidationException('Invalid User UUID');
     }
 
     /**
@@ -72,21 +63,28 @@ class User
      * @param int $userId
      * @return bool
      */
-    public function remove(int $userId): bool
+    public function remove(string $userId): bool
     {
-        return true;
+        if ($this->schemaValidation->validateUserId($userId)) {
+            $this->userId = $userId;
+            return true;
+        } else {
+            throw new InvalidValidationException('Invalid User UUID');
+        }
     }
 
     /**
      * Updates the data of a user and
      * returns the updated user data
      *
-     * @param int $userId
-     * @return self
+     * @param object $data
+     * @return object
      */
-    public function update(int $userId): self
+    public function update(object $data): object
     {
-        $this->userId = $userId;
-        return $this;
+        if ($this->schemaValidation->validateUserSchema($data)) {
+            return $data;
+        }
+        throw new InvalidValidationException("Schema does not follow validation rules");
     }
 }
