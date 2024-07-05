@@ -5,6 +5,7 @@ namespace DevPhanuel\ApiSimpleMenu\Api;
 
 use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
 use DevPhanuel\ApiSimpleMenu\Validation\SchemaValidation;
+use Ramsey\Uuid\Uuid;
 
 class User
 {
@@ -25,6 +26,7 @@ class User
     public function create(object $data): object
     {
         if ($this->schemaValidation->validateUserSchema($data)) {
+            $data->userId = Uuid::uuid4();
             return $data;
         }
         throw new InvalidValidationException("Schema does not follow validation rules");
@@ -34,9 +36,9 @@ class User
      * Retrieves a user from the database
      *
      * @param string $userId
-     * @return self
+     * @return object
      */
-    public function get(string $userId): self
+    public function get(string $userId): object
     {
         if ($this->schemaValidation->validateUserId($userId)) {
             $this->userId = $userId;
