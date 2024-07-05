@@ -11,7 +11,8 @@ class User
     public readonly ?string $userId;
     private SchemaValidation $schemaValidation;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->schemaValidation = new SchemaValidation();
     }
 
@@ -60,7 +61,7 @@ class User
     /**
      * Deletes a user from the database
      *
-     * @param int $userId
+     * @param string $userId
      * @return bool
      */
     public function remove(string $userId): bool
@@ -68,9 +69,8 @@ class User
         if ($this->schemaValidation->validateUserId($userId)) {
             $this->userId = $userId;
             return true;
-        } else {
-            throw new InvalidValidationException('Invalid User UUID');
         }
+        throw new InvalidValidationException('Invalid User UUID');
     }
 
     /**
