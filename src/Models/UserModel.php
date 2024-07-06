@@ -2,7 +2,9 @@
 
 namespace DevPhanuel\ApiSimpleMenu\Models;
 
-class UserModel
+use RedBeanPHP\SimpleModel;
+
+class UserModel extends SimpleModel
 {
 
 }

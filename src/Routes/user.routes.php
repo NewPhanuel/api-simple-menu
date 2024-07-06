@@ -49,9 +49,10 @@ try {
 } catch (InvalidValidationException $e) {
     Http::setHeadersByCode(StatusCode::BAD_REQUEST);
     echo json_encode([
-        'status' => 'error',
-        'err_type' => 'schema error',
-        'err_message' => $e->getMessage(),
-        'err_code' => $e->getCode()
+        'error' => [
+            'type' => 'InvalidValidationException',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode()
+        ],
     ]);
 }
