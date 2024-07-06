@@ -5,7 +5,7 @@ namespace DevPhanuel\ApiSimpleMenu;
 use PH7\JustHttp\StatusCode;
 use PH7\PhpHttpResponseHeader\Http;
 
-$resource = $_GET['resource'] ?? null;
+$resource = $_REQUEST['resource'] ?? null;
 
 switch ($resource) {
     case 'user':

@@ -19,7 +19,7 @@ enum UserAction: string
     {
         $postBody = file_get_contents('php://input');
         $postBody = json_decode($postBody);
-        $userId = $_GET['userId'] ?? 0;
+        $userId = $_REQUEST['userId'] ?? 0;
 
         $user = new User();
 
@@ -35,7 +35,7 @@ enum UserAction: string
     }
 }
 
-$action = $_GET['action'] ?? '';
+$action = $_REQUEST['action'] ?? '';
 match ($action) {
     'create' => $userAction = UserAction::CREATE,
     'get' => $userAction = UserAction::GET,
