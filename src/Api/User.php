@@ -4,13 +4,18 @@ declare(strict_types=1);
 namespace DevPhanuel\ApiSimpleMenu\Api;
 
 use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
+use DevPhanuel\ApiSimpleMenu\Models\UserModel;
 use DevPhanuel\ApiSimpleMenu\Validation\SchemaValidation;
+use PH7\JustHttp\StatusCode;
+use PH7\PhpHttpResponseHeader\Http;
 use Ramsey\Uuid\Uuid;
+use DevPhanuel\ApiSimpleMenu\Entity\UserEntity;
+use RedBeanPHP\RedException\SQL as RedBeanSQLException;
 
 class User
 {
-    public readonly ?string $userId;
     private SchemaValidation $schemaValidation;
+    private const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
 
     public function __construct()
     {
@@ -26,8 +31,33 @@ class User
     public function create(object $data): object
     {
         if ($this->schemaValidation->validateUserSchema($data)) {
-            $data->userId = Uuid::uuid4();
-            return $data;
+            $data->userUuid = (string) Uuid::uuid4();
+            $data->createdAt = date(self::DATE_TIME_FORMAT);
+
+            $userEntity = new UserEntity();
+            $userEntity->setUserUuid($data->userUuid)->setFirstName($data->firstName)->setMiddleName($data->middleName)
+                ->setLastName($data->lastName)->setEmail($data->email)->setPhone($data->phone)
+                ->setPassword($data->password)->setCreatedAt($data->createdAt);
+
+            try {
+                UserModel::create($userEntity);
+                Http::setHeadersByCode(StatusCode::CREATED);
+                return (object) [
+                    'success' => [
+                        'message' => 'User created successfully',
+                        'userData' => $data,
+                    ]
+                ];
+            } catch (RedBeanSQLException $e) {
+                Http::setHeadersByCode(StatusCode::INTERNAL_SERVER_ERROR);
+                return (object) [
+                    'error' => [
+                        'type' => 'RedBeanSQLException',
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode()
+                    ],
+                ];
+            }
         }
         throw new InvalidValidationException("Schema does not follow validation rules");
     }
@@ -35,13 +65,12 @@ class User
     /**
      * Retrieves a user from the database
      *
-     * @param string $userId
+     * @param string $userUuid
      * @return object
      */
-    public function get(string $userId): object
+    public function get(string $userUuid): object
     {
-        if ($this->schemaValidation->validateUserId($userId)) {
-            $this->userId = $userId;
+        if ($this->schemaValidation->validateUserUuid($userUuid)) {
             return $this;
         }
         throw new InvalidValidationException('Invalid User UUID');
@@ -63,13 +92,12 @@ class User
     /**
      * Deletes a user from the database
      *
-     * @param string $userId
+     * @param string $userUuid
      * @return bool
      */
-    public function remove(string $userId): bool
+    public function remove(string $userUuid): bool
     {
-        if ($this->schemaValidation->validateUserId($userId)) {
-            $this->userId = $userId;
+        if ($this->schemaValidation->validateUserUuid($userUuid)) {
             return true;
         }
         throw new InvalidValidationException('Invalid User UUID');
