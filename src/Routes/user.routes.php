@@ -20,15 +20,15 @@ enum UserAction: string
     {
         $postBody = file_get_contents('php://input');
         $postBody = json_decode($postBody);
-        $userId = $_REQUEST['userId'] ?? 0;
+        $userUuid = $_REQUEST['userUuid'] ?? 0;
 
         $user = new User();
 
         $response = match ($this) {
             self::CREATE => $user->create($postBody),
-            self::GET => $user->get($userId),
+            self::GET => $user->get($userUuid),
             self::UPDATE => $user->update($postBody),
-            self::REMOVE => $user->remove($userId),
+            self::REMOVE => $user->remove($postBody->userUuid),
             self::GET_ALL => $user->getAll(),
             default => "404"
         };

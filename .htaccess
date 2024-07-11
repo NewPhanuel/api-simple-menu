@@ -13,5 +13,5 @@
 
     # This is where the magic happens
      # Rewrite the requests to index.php with correct GET params
-    RewriteRule ^([^/]+)/?([^/]+)?/?([^/]+)?/?$ index.php?resource=$1&action=$2&userId=$3 [QSA,L]
+    RewriteRule ^([^/]+)/?([^/]+)?/?([^/]+)?/?$ index.php?resource=$1&action=$2&userUuid=$3 [QSA,L]
 </IfModule>

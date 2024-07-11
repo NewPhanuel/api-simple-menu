@@ -22,6 +22,16 @@ final class UserModel
      */
     public static function create(UserEntity $userEntity): int|string
     {
+        $existingUserByEmail = R::findOne(self::TABLE_NAME, 'email = ?', [$userEntity->getEmail()]);
+        if ($existingUserByEmail) {
+            throw new RedBeanSQLException('A user with this email already exists.');
+        }
+
+        $existingUserByPhone = R::findOne(self::TABLE_NAME, 'phone = ?', [$userEntity->getPhone()]);
+        if ($existingUserByPhone) {
+            throw new RedBeanSQLException('A user with this phone number already exists.');
+        }
+
         $userBean = R::dispense(self::TABLE_NAME);
         $userBean->user_uuid = $userEntity->getUserUuid();
         $userBean->first_name = $userEntity->getFirstName();
@@ -48,5 +58,14 @@ final class UserModel
     public static function getAll(): array
     {
         return R::findAll(self::TABLE_NAME);
+    }
+
+    public static function remove(string $userUuid): bool
+    {
+        $userBean = R::findOne(self::TABLE_NAME, 'user_uuid = :userUuid', ['userUuid' => $userUuid]);
+        if ($userBean) {
+            return (bool) R::trash($userBean);
+        }
+        throw new InvalidValidationException("Invalid User UUID");
     }
 }

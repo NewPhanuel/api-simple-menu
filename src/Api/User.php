@@ -90,14 +90,17 @@ class User
      * Deletes a user from the database
      *
      * @param string $userUuid
-     * @return bool
+     * @return array
      */
-    public function remove(string $userUuid): bool
+    public function remove(string $userUuid): array
     {
-        if ($this->schemaValidation->validateUserUuid($userUuid)) {
-            return true;
+        if (!$this->schemaValidation->validateUserUuid($userUuid)) {
+            throw new InvalidValidationException('Invalid User UUID');
         }
-        throw new InvalidValidationException('Invalid User UUID');
+        if (UserModel::remove($userUuid)) {
+            return successMessage('User deleted successfully');
+        }
+        return errorMessage('SQLError', 'User could not be deleted');
     }
 
     /**
