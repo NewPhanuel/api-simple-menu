@@ -11,6 +11,8 @@ use PH7\PhpHttpResponseHeader\Http;
 use Ramsey\Uuid\Uuid;
 use DevPhanuel\ApiSimpleMenu\Entity\UserEntity;
 use RedBeanPHP\RedException\SQL as RedBeanSQLException;
+use function DevPhanuel\ApiSimpleMenu\errorMessage;
+use function DevPhanuel\ApiSimpleMenu\successMessage;
 
 class User
 {
@@ -26,37 +28,26 @@ class User
      * Create a user
      *
      * @param object $data
-     * @return object
+     * @return array
      */
-    public function create(object $data): object
+    public function create(object $data): array
     {
         if ($this->schemaValidation->validateUserSchema($data)) {
-            $data->userUuid = (string) Uuid::uuid4();
+            $data->userUuid = (string)Uuid::uuid4();
             $data->createdAt = date(self::DATE_TIME_FORMAT);
 
             $userEntity = new UserEntity();
-            $userEntity->setUserUuid($data->userUuid)->setFirstName($data->firstName)->setMiddleName($data->middleName)
+            $userEntity->setUserUuid($data->userUuid)->setFirstName($data->firstName)->setMiddleName($data->middleName ?? '')
                 ->setLastName($data->lastName)->setEmail($data->email)->setPhone($data->phone)
                 ->setPassword($data->password)->setCreatedAt($data->createdAt);
 
             try {
                 UserModel::create($userEntity);
                 Http::setHeadersByCode(StatusCode::CREATED);
-                return (object) [
-                    'success' => [
-                        'message' => 'User created successfully',
-                        'userData' => $data,
-                    ]
-                ];
+                return successMessage('User created successfully', $data);
             } catch (RedBeanSQLException $e) {
                 Http::setHeadersByCode(StatusCode::INTERNAL_SERVER_ERROR);
-                return (object) [
-                    'error' => [
-                        'type' => 'RedBeanSQLException',
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode()
-                    ],
-                ];
+                return errorMessage('RedBeanSQLException', $e->getMessage(), $e->getCode());
             }
         }
         throw new InvalidValidationException("Schema does not follow validation rules");
@@ -66,12 +57,15 @@ class User
      * Retrieves a user from the database
      *
      * @param string $userUuid
-     * @return object
+     * @return array
      */
-    public function get(string $userUuid): object
+    public function get(string $userUuid): array
     {
         if ($this->schemaValidation->validateUserUuid($userUuid)) {
-            return $this;
+            $user = UserModel::get($userUuid);
+            unset($user['id']);
+            Http::setHeadersByCode();
+            return successMessage('User retrieved successfully', $user);
         }
         throw new InvalidValidationException('Invalid User UUID');
     }
@@ -83,10 +77,13 @@ class User
      */
     public function getAll(): array
     {
-        return [
-            'status' => 200,
-            'data' => $this,
-        ];
+        $users = UserModel::getAll();
+        if ($users) {
+            foreach ($users as $user) {
+                unset($user['id']);
+            }
+            return successMessage(data: $users);
+        }
     }
 
     /**

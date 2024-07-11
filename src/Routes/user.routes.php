@@ -6,6 +6,7 @@ use DevPhanuel\ApiSimpleMenu\Api\User;
 use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
 use PH7\JustHttp\StatusCode;
 use PH7\PhpHttpResponseHeader\Http;
+use function DevPhanuel\ApiSimpleMenu\errorMessage;
 
 enum UserAction: string
 {
@@ -48,11 +49,5 @@ try {
     echo $userAction->getResponse();
 } catch (InvalidValidationException $e) {
     Http::setHeadersByCode(StatusCode::BAD_REQUEST);
-    echo json_encode([
-        'error' => [
-            'type' => 'InvalidValidationException',
-            'message' => $e->getMessage(),
-            'code' => $e->getCode()
-        ],
-    ]);
+    echo json_encode(errorMessage('InvalidValidationException', $e->getMessage(), $e->getCode()));
 }

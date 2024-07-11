@@ -20,3 +20,24 @@ function inspectAndDie(mixed $data): void
     var_export($data);
     echo "</pre>";
 }
+
+function successMessage(?string $message = '', array|object $data = []): array
+{
+    return [
+        'success' => [
+            'message' => $message,
+            'data' => $data,
+        ]
+    ];
+}
+
+function errorMessage(?string $type, ?string $message, mixed $code = 0): array
+{
+    return [
+        'error' => [
+            'type' => $type,
+            'message' => $message,
+            'code' => $code
+        ]
+    ];
+}

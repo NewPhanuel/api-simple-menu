@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DevPhanuel\ApiSimpleMenu\Models;
 
 use DevPhanuel\ApiSimpleMenu\Entity\UserEntity;
+use DevPhanuel\ApiSimpleMenu\Exception\InvalidValidationException;
 use RedBeanPHP\R;
 use RedBeanPHP\RedException\SQL as RedBeanSQLException;
 
@@ -33,5 +34,19 @@ final class UserModel
         $beanId =  R::store($userBean);
         R::close();
         return $beanId;
+    }
+
+    public static function get(string $userUuid): array
+    {
+        $userBean = R::findOne(self::TABLE_NAME, 'user_uuid = :userUuid', ['userUuid' => $userUuid]);
+        if ($userBean) {
+            return $userBean->export();
+        }
+        throw new InvalidValidationException('Invalid User UUID');
+    }
+
+    public static function getAll(): array
+    {
+        return R::findAll(self::TABLE_NAME);
     }
 }

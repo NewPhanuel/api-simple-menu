@@ -8,7 +8,7 @@ use PH7\PhpHttpResponseHeader\Http;
 $resource = $_REQUEST['resource'] ?? null;
 
 switch ($resource) {
-    case 'user':
+    case 'users':
         return require_once 'user.routes.php';
     default:
         // 404
